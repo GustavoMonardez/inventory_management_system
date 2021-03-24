@@ -33,7 +33,7 @@ public class Outsourced extends Part{
     }
 
     /**
-     *  This method sets the value of the companyName field.
+     *  The setCompanyName method sets the value of the companyName field.
      *  @param companyName Specifies the company name.
      */
     void setCompanyName(String companyName) {
