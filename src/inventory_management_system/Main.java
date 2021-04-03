@@ -29,20 +29,30 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("inventory_management_system.fxml"));
         primaryStage.setTitle("Inventory Management System");
         Scene scene = new Scene(new Group());
+        scene.getStylesheets().add(Main.class.getResource("Main.css").toExternalForm());
 
         // Main Pane/Form top
         Label mainFormTitle = new Label("Inventory Management System");
+        mainFormTitle.setId("mainFormTitle");
 
         // Main Pane/Form middle
         HBox partsAndProductsPane = new HBox();
         VBox partsPane = new VBox();    // left
         VBox productsPane = new VBox(); // right
+
+        partsPane.getStyleClass().add("parts-products-pane");
+
+        productsPane.getStyleClass().add("parts-products-pane");
+
+        partsAndProductsPane.getStyleClass().add("parts-products-parent-pane");
         partsAndProductsPane.getChildren().addAll(partsPane, productsPane);
 
         // Main Pane/Form bottom
         Button exitButton = new Button("Exit");
-
-
+        exitButton.setId("exit-button");
+        HBox exitButtonPane = new HBox();
+        exitButtonPane.getStyleClass().add("exit-button-pane");
+        exitButtonPane.getChildren().addAll(exitButton);
         // Parts pane layout
         HBox partsLabelAndSearchBox = new HBox();        // top
         // table view middle
@@ -51,9 +61,11 @@ public class Main extends Application {
 
         // Parts pane top elements
         Label partsPaneTitle = new Label("Parts");
+        partsPaneTitle.setId("parts-pane-title");
         TextField partsSearchBox = new TextField();
         partsSearchBox.setPromptText("Search by part ID or Name");
         partsSearchBox.setFocusTraversable(false);
+        partsLabelAndSearchBox.setId("parts-label-and-search-box");
         partsLabelAndSearchBox.getChildren().addAll(partsPaneTitle, partsSearchBox);
 
         // Parts pane middle elements
@@ -70,23 +82,21 @@ public class Main extends Application {
         priceHeader.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
 
         partsTable.setItems(data);
+        partsTable.getStyleClass().add("parts-and-products-table");
         partsTable.getColumns().addAll(partIDHeader, partNameHeader, inventoryHeader, priceHeader);
-        partsTable.setMaxHeight(150);
+
 
         // Parts pane bottom elements
-        crudButtonsPane.setSpacing(5);
-        crudButtonsPane.setPadding(new Insets(10,0,0,10));
+        crudButtonsPane.getStyleClass().add("crud-buttons-pane");
         Button addPartButton = new Button("Add");
         Button modifyPartButton = new Button("Modify");
         Button deletePartButton = new Button("Delete");
         crudButtonsPane.getChildren().addAll(addPartButton, modifyPartButton, deletePartButton);
-        crudButtonsPane.setAlignment(Pos.BASELINE_RIGHT);
 
         // Main pane config
         VBox mainPane = new VBox();
-        mainPane.setSpacing(5);
-        mainPane.setPadding(new Insets(10,0,0,10));
-        mainPane.getChildren().addAll(mainFormTitle, partsAndProductsPane, exitButton);
+        mainPane.getStyleClass().add("main-pane");
+        mainPane.getChildren().addAll(mainFormTitle, partsAndProductsPane, exitButtonPane);
 
         // Add main pane to scene and main scene to the stage
         ((Group) scene.getRoot()).getChildren().addAll(mainPane);

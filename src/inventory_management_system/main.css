@@ -1,0 +1,54 @@
+.main-pane {
+    -fx-padding: 15 0 0 0;
+}
+
+#mainFormTitle {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 0 60;
+}
+
+.parts-products-parent-pane {
+    -fx-padding: 5 50 5 50;
+    -fx-spacing: 50;
+}
+
+.parts-products-pane {
+    -fx-min-width: 390;
+    -fx-border-color: grey;
+    -fx-border-insets: 5;
+    -fx-border-width: 1;
+    -fx-background-radius: 15 15 15 15;
+    -fx-border-radius: 15 15 15 15;
+    -fx-border-style: solid;
+
+    -fx-padding: 10 10 5 10;
+}
+
+#parts-label-and-search-box {
+    -fx-spacing: 175;
+    -fx-padding: 0 0 3 0;
+}
+
+#parts-pane-title {
+    -fx-font-weight: bold;
+}
+
+.parts-and-products-table {
+    -fx-max-height: 150;
+}
+
+.crud-buttons-pane {
+    -fx-spacing: 5;
+    -fx-padding: 5 0 0 0;
+    -fx-alignment: baseline-right;
+}
+
+.exit-button-pane {
+    -fx-alignment: baseline-right;
+    -fx-padding: 0 60 10 0;
+}
+
+#exit-button {
+
+}
