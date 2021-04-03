@@ -49,6 +49,40 @@
     -fx-padding: 0 60 10 0;
 }
 
-#exit-button {
+/* Add Part */
+.add-form-main-pane {
+    -fx-padding: 25 50 25 50;
+}
 
+.add-part-field-panes {
+    -fx-padding: 3 3 3 3;
+    -fx-min-width: 400;
+}
+
+#add-part-type-pane {
+    -fx-padding: 0 0 25 0;
+}
+
+#add-part-main-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+}
+
+.add-part-field-labels {
+    -fx-min-width: 100;
+    -fx-alignment: center-left;
+}
+
+#add-part-min-label {
+    -fx-padding: 0 10 0 10;
+}
+
+#add-part-in-house {
+    -fx-padding: 0 10 0 0;
+}
+
+#add-part-save-cancel-buttons-pane {
+    -fx-alignment: baseline-right;
+    -fx-padding: 10 0 0 0;
+    -fx-spacing: 10;
 }
