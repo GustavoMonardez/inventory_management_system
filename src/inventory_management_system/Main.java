@@ -1,6 +1,8 @@
 package inventory_management_system;
-
+// Exception in thread "JavaFX Application Thread" java.lang.NumberFormatException
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +20,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     private TableView partsTable = new TableView();
+    private TableColumn partIDHeader;
     private final ObservableList<Part> data =
             FXCollections.observableArrayList(
                     new InHouse(0,"Rim", 2.18, 3, 1, 12, 2),
@@ -48,11 +51,10 @@ public class Main extends Application {
         primaryStage.setTitle("Inventory Management System");
         Scene mainFormScene = new Scene(new Group());
 
-
-        // test start
         initializeAddPartForm();
+
         cancelAddPart.setOnAction(e -> primaryStage.setScene(mainFormScene));
-        // test end
+
 
         mainFormScene.getStylesheets().add(Main.class.getResource("Main.css").toExternalForm());
         addPartFormScene.getStylesheets().add(Main.class.getResource("Main.css").toExternalForm());
@@ -101,7 +103,7 @@ public class Main extends Application {
         partsLabelAndSearchBox.getChildren().addAll(partsPaneTitle, partsSearchBox);
 
         // Parts pane middle elements
-        TableColumn partIDHeader = new TableColumn("Part ID");
+        partIDHeader = new TableColumn("Part ID");
         partIDHeader.setCellValueFactory(new PropertyValueFactory<Part, Integer>("id"));
 
         TableColumn partNameHeader = new TableColumn("Part Name");
@@ -125,6 +127,12 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
                 // update main form label
                 resetAddModifyPartForm();
+                saveAddPart.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent e) {
+                        addNewPart(-1);
+                        primaryStage.setScene(mainFormScene);
+                    }
+                });
                 primaryStage.setScene(addPartFormScene);
             }
         });
@@ -139,6 +147,12 @@ public class Main extends Application {
                     errorAlert.showAndWait();
                 } else {
                     updateAddModifyPartForm(index);
+                    saveAddPart.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override public void handle(ActionEvent e) {
+                            modifyPart(index);
+                            primaryStage.setScene(mainFormScene);
+                        }
+                    });
                     primaryStage.setScene(addPartFormScene);
                 }
             }
@@ -177,6 +191,22 @@ public class Main extends Application {
         addPartLabel.setId("add-part-main-label");
         addPartLabel.getStyleClass().add("add-part-field-labels");
         ToggleGroup partTypeGroup = new ToggleGroup();
+        partTypeGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+        {
+            public void changed(ObservableValue<? extends Toggle> ob, Toggle o, Toggle n) {
+
+                RadioButton rb = (RadioButton)partTypeGroup.getSelectedToggle();
+                if (rb != null) {
+                    String selection = rb.getText();
+                    if (selection == "In-House") {
+                        partIdOrNameLabel.setText("Machine ID");
+                    } else {
+                        partIdOrNameLabel.setText("Company Name");
+                    }
+
+                }
+            }
+        });
 
         inHouse.setId("add-part-in-house");
         inHouse.setToggleGroup(partTypeGroup);
@@ -278,6 +308,43 @@ public class Main extends Application {
         partMinTextField.setText("");
         partIdOrNameLabel.setText("Machine ID");
         partIdOrNameTextField.setText("");
+    }
+
+    private void addNewPart(int index) {
+        Part newPart;
+        if (inHouse.isSelected()) {
+            newPart = new InHouse(
+                    4,
+                    partNameTextField.getText(),
+                    Double.parseDouble(partPriceTextField.getText()),
+                    Integer.parseInt(partInventoryTextField.getText()),
+                    Integer.parseInt(partMaxTextField.getText()),
+                    Integer.parseInt(partMinTextField.getText()),
+                    Integer.parseInt(partIdOrNameTextField.getText())
+            );
+        } else {
+            newPart = new Outsourced(
+                    4,
+                    partNameTextField.getText(),
+                    Double.parseDouble(partPriceTextField.getText()),
+                    Integer.parseInt(partInventoryTextField.getText()),
+                    Integer.parseInt(partMaxTextField.getText()),
+                    Integer.parseInt(partMinTextField.getText()),
+                    partIdOrNameTextField.getText()
+            );
+
+        }
+        if (index != -1) {
+            newPart.setId(index);
+        }
+        data.add(newPart);
+
+    }
+
+    private void modifyPart(int index) {
+        data.remove(index);
+        addNewPart(index);
+        partsTable.getSortOrder().addAll(partIDHeader);
     }
 
     public static void main(String[] args) {
