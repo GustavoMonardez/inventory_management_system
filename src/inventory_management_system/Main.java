@@ -75,6 +75,12 @@ public class Main extends Application {
 
         // Main Pane/Form bottom
         Button exitButton = new Button("Exit");
+        exitButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                Stage stage = (Stage) exitButton.getScene().getWindow();
+                stage.close();
+            }
+        });
         exitButton.setId("exit-button");
         HBox exitButtonPane = new HBox();
         exitButtonPane.getStyleClass().add("exit-button-pane");
@@ -138,6 +144,20 @@ public class Main extends Application {
             }
         });
         Button deletePartButton = new Button("Delete");
+        deletePartButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                int index = partsTable.getSelectionModel().getSelectedIndex();
+                if (index == -1) {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setHeaderText("Input not valid");
+                    errorAlert.setContentText("You must select a part to delete");
+                    errorAlert.showAndWait();
+                } else {
+                    data.remove(index);
+                }
+            }
+        });
+
         crudButtonsPane.getChildren().addAll(addPartButton, modifyPartButton, deletePartButton);
 
         // Main pane config
