@@ -3,6 +3,8 @@ package inventory_management_system;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Parent;
@@ -20,9 +22,21 @@ public class Main extends Application {
             FXCollections.observableArrayList(
                     new InHouse(0,"Rim", 2.18, 3, 1, 12, 2),
                     new InHouse(1,"Brake", 5.37, 7, 1, 12, 1),
-                    new InHouse(2,"Light", 1.31, 1, 1, 12, 5)
+                    new InHouse(2,"Light", 1.31, 1, 1, 12, 5),
+                    new Outsourced(2,"Bumper", 35.20, 1, 1, 12, "Super Bikes")
             );
     /******************* Add Part Form *******************/
+    private Label addPartLabel = new Label("Add Part");
+    private RadioButton inHouse = new RadioButton("In-House");
+    private RadioButton outsourced = new RadioButton("Outsourced");
+    private TextField partIdTextField = new TextField();
+    private TextField partNameTextField = new TextField();
+    private TextField partInventoryTextField = new TextField();
+    private TextField partPriceTextField = new TextField();
+    private TextField partMaxTextField = new TextField();
+    private TextField partMinTextField = new TextField();
+    private Label partIdOrNameLabel = new Label("Machine ID");
+    private TextField partIdOrNameTextField = new TextField();
     private VBox addPartFormLayout = new VBox();
     private Button cancelAddPart = new Button("Cancel");
     private Button saveAddPart = new Button("Save");
@@ -101,8 +115,28 @@ public class Main extends Application {
         // Parts pane bottom elements
         crudButtonsPane.getStyleClass().add("crud-buttons-pane");
         Button addPartButton = new Button("Add");
-        addPartButton.setOnAction(e -> primaryStage.setScene(addPartFormScene));
+        addPartButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                // update main form label
+                resetAddModifyPartForm();
+                primaryStage.setScene(addPartFormScene);
+            }
+        });
         Button modifyPartButton = new Button("Modify");
+        modifyPartButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                int index = partsTable.getSelectionModel().getSelectedIndex();
+                if (index == -1) {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setHeaderText("Input not valid");
+                    errorAlert.setContentText("You must select a part to modify");
+                    errorAlert.showAndWait();
+                } else {
+                    updateAddModifyPartForm(index);
+                    primaryStage.setScene(addPartFormScene);
+                }
+            }
+        });
         Button deletePartButton = new Button("Delete");
         crudButtonsPane.getChildren().addAll(addPartButton, modifyPartButton, deletePartButton);
 
@@ -120,15 +154,14 @@ public class Main extends Application {
     private void initializeAddPartForm() {
         /******************* addPartFormLayout - top *******************/
         HBox addPartTypePane = new HBox();
-        Label addPartLabel = new Label("Add Part");
         addPartLabel.setId("add-part-main-label");
         addPartLabel.getStyleClass().add("add-part-field-labels");
         ToggleGroup partTypeGroup = new ToggleGroup();
-        RadioButton inHouse = new RadioButton("In-House");
+
         inHouse.setId("add-part-in-house");
         inHouse.setToggleGroup(partTypeGroup);
         inHouse.setSelected(true);
-        RadioButton outsourced = new RadioButton("Outsourced");
+
         outsourced.setToggleGroup(partTypeGroup);
         addPartTypePane.getStyleClass().add("add-part-field-panes");
         addPartTypePane.setId("add-part-type-pane");
@@ -138,8 +171,6 @@ public class Main extends Application {
         // ID
         Label partIdLabel = new Label("ID");
         partIdLabel.getStyleClass().add("add-part-field-labels");
-        TextField partIdTextField = new TextField();
-        //partIdTextField.getStyleClass().add("add-part-text-fields");
         partIdTextField.setPromptText("Auto Gen - Disabled");
         partIdTextField.setDisable(true);
         HBox partIdPane = new HBox();
@@ -149,7 +180,6 @@ public class Main extends Application {
         // Name
         Label partNameLabel = new Label("Name");
         partNameLabel.getStyleClass().add("add-part-field-labels");
-        TextField partNameTextField = new TextField();
         HBox partNamePane = new HBox();
         partNamePane.getStyleClass().add("add-part-field-panes");
         partNamePane.getChildren().addAll(partNameLabel, partNameTextField);
@@ -157,7 +187,6 @@ public class Main extends Application {
         // Inventory
         Label partInventoryLabel = new Label("Inv");
         partInventoryLabel.getStyleClass().add("add-part-field-labels");
-        TextField partInventoryTextField = new TextField();
         HBox partInventoryPane = new HBox();
         partInventoryPane.getStyleClass().add("add-part-field-panes");
         partInventoryPane.getChildren().addAll(partInventoryLabel, partInventoryTextField);
@@ -165,7 +194,6 @@ public class Main extends Application {
         // Price/Cost
         Label partPriceLabel = new Label("Price/Cost");
         partPriceLabel.getStyleClass().add("add-part-field-labels");
-        TextField partPriceTextField = new TextField();
         HBox partPricePane = new HBox();
         partPricePane.getStyleClass().add("add-part-field-panes");
         partPricePane.getChildren().addAll(partPriceLabel, partPriceTextField);
@@ -173,18 +201,14 @@ public class Main extends Application {
         // Max and Min
         Label partMaxLabel = new Label("Max");
         partMaxLabel.getStyleClass().add("add-part-field-labels");
-        TextField partMaxTextField = new TextField();
         Label partMinLabel = new Label("Min");
         partMinLabel.setId("add-part-min-label");
-        TextField partMinTextField = new TextField();
         HBox partMaxAndMinPane = new HBox();
         partMaxAndMinPane.getStyleClass().add("add-part-field-panes");
         partMaxAndMinPane.getChildren().addAll(partMaxLabel, partMaxTextField, partMinLabel, partMinTextField);
 
         // Machine ID or Company Name
-        Label partIdOrNameLabel = new Label("Machine ID");
         partIdOrNameLabel.getStyleClass().add("add-part-field-labels");
-        TextField partIdOrNameTextField = new TextField();
         HBox partIdOrNamePane = new HBox();
         partIdOrNamePane.getStyleClass().add("add-part-field-panes");
         partIdOrNamePane.getChildren().addAll(partIdOrNameLabel, partIdOrNameTextField);
@@ -200,6 +224,40 @@ public class Main extends Application {
 
         addPartFormLayout.getStyleClass().add("add-form-main-pane");
         addPartFormLayout.getChildren().addAll(addPartTypePane, addPartFieldsPane, saveAndCancelButtonsPane);
+    }
+
+    private void updateAddModifyPartForm(int index) {
+        addPartLabel.setText("Modify Part");
+        Part selectedPart = data.get(index);
+        if (selectedPart.getClass() == InHouse.class) {
+            inHouse.setSelected(true);
+            partIdOrNameLabel.setText("Machine ID");
+            partIdOrNameTextField.setText(String.valueOf(((InHouse) selectedPart).getMachineID()));
+        } else if (selectedPart.getClass() == Outsourced.class) {
+            outsourced.setSelected(true);
+            partIdOrNameLabel.setText("Company Name");
+            partIdOrNameTextField.setText(((Outsourced) selectedPart).getCompanyName());
+        }
+        partIdTextField.setText(String.valueOf(selectedPart.getId()));
+        partNameTextField.setText(selectedPart.getName());
+        partInventoryTextField.setText(String.valueOf(selectedPart.getStock()));
+        partPriceTextField.setText(String.valueOf(selectedPart.getPrice()));
+        partMaxTextField.setText(String.valueOf(selectedPart.getMax()));
+        partMinTextField.setText(String.valueOf(selectedPart.getMin()));
+    }
+
+    private void resetAddModifyPartForm() {
+        addPartLabel.setText("Add Part");
+        inHouse.setSelected(true);
+        partIdTextField.setText("");
+        partIdTextField.setPromptText("Auto Gen - Disabled");
+        partNameTextField.setText("");
+        partInventoryTextField.setText("");
+        partPriceTextField.setText("");
+        partMaxTextField.setText("");
+        partMinTextField.setText("");
+        partIdOrNameLabel.setText("Machine ID");
+        partIdOrNameTextField.setText("");
     }
 
     public static void main(String[] args) {
