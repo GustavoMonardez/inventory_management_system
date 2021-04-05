@@ -5,6 +5,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -94,11 +96,31 @@ public class Main extends Application {
         partsPane.getChildren().addAll(partsLabelAndSearchBox, partsTable, crudButtonsPane);
 
         // Parts pane top elements
+        FilteredList<Part>filteredPartsList = new FilteredList<>(data, p -> true);
         Label partsPaneTitle = new Label("Parts");
         partsPaneTitle.setId("parts-pane-title");
         TextField partsSearchBox = new TextField();
         partsSearchBox.setPromptText("Search by part ID or Name");
         partsSearchBox.setFocusTraversable(false);
+        partsSearchBox.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredPartsList.setPredicate(currPart -> {
+                // If filter text is empty, display all parts
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (String.valueOf(currPart.getName()).toLowerCase().startsWith(lowerCaseFilter)) {
+                    return true; // Filter matches part name.
+
+                } else if (String.valueOf(currPart.getId()).toLowerCase().startsWith(lowerCaseFilter)) {
+                    return true; // Filter matches part id.
+                }
+
+                return false; // Does not match.
+            });
+        });
         partsLabelAndSearchBox.setId("parts-label-and-search-box");
         partsLabelAndSearchBox.getChildren().addAll(partsPaneTitle, partsSearchBox);
 
@@ -115,7 +137,14 @@ public class Main extends Application {
         TableColumn priceHeader = new TableColumn("Price/Cost per Unit");
         priceHeader.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
 
-        partsTable.setItems(data);
+
+        SortedList<Part> sortedData = new SortedList<>(filteredPartsList);
+
+        // 4. Bind the SortedList comparator to the TableView comparator.
+        sortedData.comparatorProperty().bind(partsTable.comparatorProperty());
+        // 5. Add sorted (and filtered) data to the table.
+        partsTable.setItems(sortedData);
+
         partsTable.getStyleClass().add("parts-and-products-table");
         partsTable.getColumns().addAll(partIDHeader, partNameHeader, inventoryHeader, priceHeader);
 
