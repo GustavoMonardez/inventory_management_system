@@ -1,11 +1,8 @@
 package inventory_management_system;
-// Exception in thread "JavaFX Application Thread" java.lang.NumberFormatException
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -20,6 +17,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ The Main class is the main application
+ FUTURE ENHANCEMENT Upon loading the application if a parts
+ inventory is less than the minimum, a message shows up letting
+ the user know, and suggesting to order/make more parts
+ */
 public class Main extends Application {
     // Use to assign part id to newly created parts
     private int partsCount = 0;
@@ -51,6 +54,14 @@ public class Main extends Application {
     private Button saveAddPart = new Button("Save");
     private Scene addPartFormScene = new Scene(addPartFormLayout);
 
+
+    /**
+     *  The  start  method begins the execution of the thread
+     * @param primaryStage The main stage of the application
+     *  RUNTIME ERROR Exception in thread "JavaFX Application Thread" java.lang.NumberFormatException
+     *  This error was caused when passing a "string" parameter when a "double" was expected.
+     *  The problem was corrected by passing the parameters in the correct order.
+     */
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("inventory_management_system.fxml"));
@@ -407,7 +418,11 @@ public class Main extends Application {
         addPartFormLayout.getChildren().addAll(addPartTypePane, addPartFieldsPane, saveAndCancelButtonsPane);
     }
 
-    // TODO add comments/documentation for functions
+    /**
+     *  The updateAddModifyPartForm function loads the selected
+     *  part's data into the modify part form
+     *  @param partId Specifies the id of the selected part.
+     */
     private void updateAddModifyPartForm(int partId) {
         addPartLabel.setText("Modify Part");
         Part selectedPart = inventory.lookupPart(partId);
@@ -428,6 +443,10 @@ public class Main extends Application {
         partMinTextField.setText(String.valueOf(selectedPart.getMin()));
     }
 
+    /**
+     *  The resetAddModifyPartForm function resets all the
+     *  values from the add/modify part form
+     */
     private void resetAddModifyPartForm() {
         addPartLabel.setText("Add Part");
         inHouse.setSelected(true);
@@ -442,6 +461,11 @@ public class Main extends Application {
         partIdOrNameTextField.setText("");
     }
 
+    /**
+     *  The createNewPart function creates a new part from the
+     *  data entered into the add part form
+     *  @return The newly created part
+     */
     private Part createNewPart() {
         Part newPart;
         if (inHouse.isSelected()) {
@@ -469,6 +493,14 @@ public class Main extends Application {
         return newPart;
     }
 
+    /**
+     *  The modifyPart function captures all the data from
+     *  the modify part form, creates a temporary part variable
+     *  and it passes that information with the index to the
+     *  inventory object to update changes of the selected part
+     * @param selectedIndex Specifies the index of the
+     *                      part to modify
+     */
     private void modifyPart(int selectedIndex) {
         Part modifiedPart = createNewPart();
         inventory.updatePart(selectedIndex, modifiedPart);
