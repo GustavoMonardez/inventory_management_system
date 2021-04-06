@@ -1,10 +1,17 @@
 package inventory_management_system;
 
+
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
 
 public class Inventory {
     private ObservableList<Part>allParts;
     private ObservableList<Product>allProducts;
+
+    Inventory(){
+        this.allParts = FXCollections.observableArrayList();
+    };
 
     void addPart(Part part) {
         this.allParts.add(part);
@@ -15,7 +22,10 @@ public class Inventory {
     }
 
     Part lookupPart(int partId) {
-        return allParts.get(partId);
+        for (Part curr: allParts) {
+            if (curr.getId() == partId) return curr;
+        }
+        return null;
     }
 
     Product lookupProduct(int productId) {
@@ -30,8 +40,13 @@ public class Inventory {
         return allProducts;
     }
 
-    void updatePart(int index, Part selectedPart) {
+    void updatePart(int index, Part modifiedPart) {
+        // preserve the part id
+        Part oldPart = this.allParts.get(index);
+        modifiedPart.setId(oldPart.getId());
 
+        // update all other fields
+        this.allParts.set(index, modifiedPart);
     }
 
     void updateProduct(int index, Product selectedProduct) {
@@ -39,7 +54,11 @@ public class Inventory {
     }
 
     boolean deletePart(Part selectedPart) {
-        return true;
+        if (this.allParts.remove(selectedPart)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     boolean deleteProduct(Product selectedProduct) {
