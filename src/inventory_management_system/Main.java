@@ -17,6 +17,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.Optional;
+
 /**
  The Main class is the main application
  FUTURE ENHANCEMENT Upon loading the application if a parts
@@ -273,6 +275,7 @@ public class Main extends Application {
 
         // Delete part button and event handler
         Button deletePartButton = new Button("Delete");
+
         deletePartButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 int index = partsTable.getSelectionModel().getSelectedIndex();
@@ -288,8 +291,20 @@ public class Main extends Application {
                     // Get the part selected to be deleted
                     Part selected = (Part) partsTable.getSelectionModel().getSelectedItem();
 
-                    // Delete selected part from main inventory
-                    inventory.deletePart(selected);
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirm part deletion");
+                    String deleteMsg = "You are about to delete the '" + selected.getName() + "' part";
+                    alert.setHeaderText(deleteMsg);
+                    alert.setContentText("Are you sure you want to delete the selected part?");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        // Delete selected part from main inventory
+                        inventory.deletePart(selected);
+                    } else {
+                        // ... user chose CANCEL or closed the dialog
+                    }
+
                 }
             }
         });
