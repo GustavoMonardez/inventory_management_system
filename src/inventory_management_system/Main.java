@@ -13,6 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -30,7 +32,7 @@ public class Main extends Application {
     private int partsCount = 0;
 
     // Table that will display all parts available
-    private TableView partsTable = new TableView();
+    private TableView<Part> partsTable = new TableView();
 
     // Column that data will be sorted on
     private TableColumn partIDHeader;
@@ -149,26 +151,30 @@ public class Main extends Application {
         partsSearchBox.setFocusTraversable(false);
 
         // Auto-complete search event handler
-        partsSearchBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredPartsList.setPredicate(currPart -> {
-                // If filter text is empty, display all parts
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
+        partsSearchBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    String searchInput = partsSearchBox.getText().toLowerCase();
+                    if (searchInput.length() == 0) {
+                        partsTable.setItems(inventory.getAllParts());
+                    } else if (searchInput.matches("^[0-9].*$")) {
+                        for (int i = 0; i < partsTable.getItems().size(); i++) {
+                            if (partsTable.getItems().get(i).getId() == Integer.parseInt(searchInput)) {
+                                partsTable.requestFocus();
+                                partsTable.getSelectionModel().select(i);
+                                partsTable.getFocusModel().focus(0);
+                            }
+                        }
+                    } else {
+                        System.out.println("starts wit letters");
+                        partsTable.setItems(inventory.lookupPart(searchInput));
+                    }
+
                 }
-
-                // Ignore casing
-                String lowerCaseFilter = newValue.toLowerCase();
-
-                if (String.valueOf(currPart.getName()).toLowerCase().startsWith(lowerCaseFilter)) {
-                    return true; // Filter matches part name.
-
-                } else if (String.valueOf(currPart.getId()).toLowerCase().startsWith(lowerCaseFilter)) {
-                    return true; // Filter matches part id.
-                }
-
-                return false; // Does not match.
-            });
+            }
         });
+
 
         // Assign id for css styling
         partsLabelAndSearchBox.setId("parts-label-and-search-box");
@@ -189,14 +195,8 @@ public class Main extends Application {
         TableColumn priceHeader = new TableColumn("Price/Cost per Unit");
         priceHeader.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
 
-        // Create sorted list based on filtered parts list
-        SortedList<Part> sortedData = new SortedList<>(filteredPartsList);
-
-        // Bind the SortedList comparator to the TableView comparator.
-        sortedData.comparatorProperty().bind(partsTable.comparatorProperty());
-
-        // Add sorted (and filtered) data to the table.
-        partsTable.setItems(sortedData);
+      
+        partsTable.setItems(inventory.getAllParts());
 
         // Assign css class for styling
         partsTable.getStyleClass().add("parts-and-products-table");

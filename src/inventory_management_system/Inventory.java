@@ -66,7 +66,13 @@ public class Inventory {
      * @return The part(s) being looked up or null if not found
      */
     ObservableList<Part> lookupPart(String partName) {
-        return allParts;
+        ObservableList<Part> result = FXCollections.observableArrayList();
+        for (Part part : this.allParts) {
+            if (part.getName().toLowerCase().startsWith(partName)) {
+                result.add(part);
+            }
+        }
+        return result;
     }
 
     /**
