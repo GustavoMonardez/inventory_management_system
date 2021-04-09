@@ -20,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 /**
  The Main class is the main application
@@ -195,7 +196,7 @@ public class Main extends Application {
         TableColumn priceHeader = new TableColumn("Price/Cost per Unit");
         priceHeader.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
 
-      
+
         partsTable.setItems(inventory.getAllParts());
 
         // Assign css class for styling
@@ -223,14 +224,16 @@ public class Main extends Application {
                     @Override public void handle(ActionEvent e) {
                         Part newPart = createNewPart();
 
-                        // Add new part to our main inventory object
-                        inventory.addPart(newPart);
+                        if (newPart != null) {
+                            // Add new part to our main inventory object
+                            inventory.addPart(newPart);
 
-                        // Increase part id
-                        ++partsCount;
+                            // Increase part id
+                            ++partsCount;
 
-                        // Redirect to main screen
-                        primaryStage.setScene(mainFormScene);
+                            // Redirect to main screen
+                            primaryStage.setScene(mainFormScene);
+                        }
                     }
                 });
                 // Redirect to the add part form
@@ -261,10 +264,14 @@ public class Main extends Application {
                     saveAddPart.setOnAction(new EventHandler<ActionEvent>() {
                         @Override public void handle(ActionEvent e) {
                             // Update changes made
-                            modifyPart(selectedIndex);
+                            Part modifiedPart = createNewPart();
 
-                            // Redirect back to the main form
-                            primaryStage.setScene(mainFormScene);
+                            if (modifiedPart != null) {
+                                inventory.updatePart(selectedIndex, modifiedPart);
+                                partsTable.getSortOrder().addAll(partIDHeader);
+                                // Redirect back to the main form
+                                primaryStage.setScene(mainFormScene);
+                            }
                         }
                     });
                     // Redirect to the modify part form
@@ -328,6 +335,7 @@ public class Main extends Application {
     }
 
     private void initializeAddPartForm() {
+        initializeAddPartFormTextFieldsValidation();
         /******************* addPartFormLayout - top *******************/
         HBox addPartTypePane = new HBox();
 
@@ -433,6 +441,57 @@ public class Main extends Application {
         addPartFormLayout.getChildren().addAll(addPartTypePane, addPartFieldsPane, saveAndCancelButtonsPane);
     }
 
+    private void initializeAddPartFormTextFieldsValidation() {
+        partInventoryTextField.setText("");
+        partInventoryTextField.setPromptText("Please enter a number");
+        partInventoryTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    partInventoryTextField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+
+        partPriceTextField.setText("");
+        partPriceTextField.setPromptText("Please enter a number");
+        partPriceTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    partPriceTextField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+
+        partMaxTextField.setText("");
+        partMaxTextField.setPromptText("Please enter a number");
+        partMaxTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    partMaxTextField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+
+        partMinTextField.setText("");
+        partMinTextField.setPromptText("Please enter a number");
+        partMinTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue) {
+                if (!newValue.matches("\\d*")) {
+                    partMinTextField.setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            }
+        });
+
+    }
+
     /**
      *  The updateAddModifyPartForm function loads the selected
      *  part's data into the modify part form
@@ -482,30 +541,126 @@ public class Main extends Application {
      *  @return The newly created part
      */
     private Part createNewPart() {
-        Part newPart;
-        if (inHouse.isSelected()) {
-            newPart = new InHouse(
-                    partsCount,
-                    partNameTextField.getText(),
-                    Double.parseDouble(partPriceTextField.getText()),
-                    Integer.parseInt(partInventoryTextField.getText()),
-                    Integer.parseInt(partMaxTextField.getText()),
-                    Integer.parseInt(partMinTextField.getText()),
-                    Integer.parseInt(partIdOrNameTextField.getText())
-            );
-        } else {
-            newPart = new Outsourced(
-                    partsCount,
-                    partNameTextField.getText(),
-                    Double.parseDouble(partPriceTextField.getText()),
-                    Integer.parseInt(partInventoryTextField.getText()),
-                    Integer.parseInt(partMaxTextField.getText()),
-                    Integer.parseInt(partMinTextField.getText()),
-                    partIdOrNameTextField.getText()
-            );
+        boolean allFieldsValid = true;
+        boolean numeric = true;
+        boolean numericInv = true;
+        boolean numericMax = true;
+        boolean numericMin = true;
 
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error Dialog");
+        alert.setHeaderText("Invalid data");
+
+        Part newPart;
+        String partName = partNameTextField.getText();
+        Double partPrice = -1.0;
+        int partInventory = -1;
+        int partMax = -1;
+        int partMin = -1;
+
+        // part name
+        if (partName.length() == 0) {
+            alert.setContentText("You must enter a part name");
+            alert.showAndWait();
+            allFieldsValid = false;
         }
-        return newPart;
+
+        // inventory
+        numericInv = partInventoryTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        if(numericInv) partInventory = Integer.parseInt(partInventoryTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for part inventory");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+
+        // price
+        numeric = partPriceTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        System.out.println("price: " + numeric);
+        if(numeric) partPrice = Double.parseDouble(partPriceTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for part price/cost");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+
+        // max
+        numericMax = partMaxTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        if(numericMax) partMax = Integer.parseInt(partMaxTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for part max");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+
+        // min
+        numericMin = partMinTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        if(numericMin) partMin = Integer.parseInt(partMinTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for part min");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+        // if all values are numbers, check to see if they're in the correct
+        // range of values
+        if (numericInv && numericMax && numericMin) {
+            if (partMin > partMax) {
+                alert.setContentText("The min value must be lesser or equal to the max value");
+                alert.showAndWait();
+                allFieldsValid = false;
+            }
+            // Inventory must be within min and max
+            else if (partInventory < partMin || partInventory > partMax) {
+                alert.setContentText("The inventory value must be greater or equal to the min value" +
+                        " and lesser or equal to the max value");
+                alert.showAndWait();
+                allFieldsValid = false;
+            }
+        }
+        int partMachineId = -1;
+        if (inHouse.isSelected()) {
+            numeric = partIdOrNameTextField.getText().matches("-?\\d+(\\.\\d+)?");
+            if(numeric) partMachineId = Integer.parseInt(partInventoryTextField.getText());
+            else {
+                alert.setContentText("You must enter a number for Machine ID");
+                alert.showAndWait();
+                allFieldsValid = false;
+            }
+        } else {
+            if (partIdOrNameTextField.getText().length() == 0) {
+                alert.setContentText("You must enter a Company Name");
+                alert.showAndWait();
+                allFieldsValid = false;
+            }
+        }
+        if (allFieldsValid) {
+            if (inHouse.isSelected()) {
+                newPart = new InHouse(
+                        partsCount,
+                        partName,
+                        partPrice,
+                        partInventory,
+                        partMax,
+                        partMin,
+                        partMachineId
+                );
+            } else {
+                newPart = new Outsourced(
+                        partsCount,
+                        partName,
+                        partPrice,
+                        partInventory,
+                        partMax,
+                        partMin,
+                        partIdOrNameTextField.getText()
+                );
+
+            }
+            return newPart;
+        } else {
+
+            return null;
+        }
     }
 
     /**
@@ -518,6 +673,7 @@ public class Main extends Application {
      */
     private void modifyPart(int selectedIndex) {
         Part modifiedPart = createNewPart();
+        System.out.println(modifiedPart);
         inventory.updatePart(selectedIndex, modifiedPart);
         partsTable.getSortOrder().addAll(partIDHeader);
     }
