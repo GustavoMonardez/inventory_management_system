@@ -18,7 +18,9 @@ public class Inventory {
      * The constructor initializes the parts and products lists
      */
     Inventory(){
+
         this.allParts = FXCollections.observableArrayList();
+        this.allProducts = FXCollections.observableArrayList();
     };
 
     /**
@@ -57,7 +59,10 @@ public class Inventory {
      * @return The product being looked up or null if not found
      */
     Product lookupProduct(int productId) {
-        return allProducts.get(productId);
+        for (Product curr: allProducts) {
+            if (curr.getId() == productId) return curr;
+        }
+        return null;
     }
 
     /**
@@ -81,7 +86,13 @@ public class Inventory {
      * @return The product(s) being looked up or null if not found
      */
     ObservableList<Product> lookupProduct(String productName) {
-        return allProducts;
+        ObservableList<Product> result = FXCollections.observableArrayList();
+        for (Product product : this.allProducts) {
+            if (product.getName().toLowerCase().startsWith(productName)) {
+                result.add(product);
+            }
+        }
+        return result;
     }
 
     /**

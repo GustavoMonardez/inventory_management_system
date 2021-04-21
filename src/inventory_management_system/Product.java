@@ -24,7 +24,7 @@ public class Product {
      * @param min Minimum value
      * @param max Maximum value
      */
-    Product(int id, String name, double price, int stock, int min, int max) {
+    public Product(int id, String name, double price, int stock, int min, int max) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -37,7 +37,7 @@ public class Product {
      *  The getID method returns the product's id
      *  @return The value in the id field.
      */
-    int getId() {
+    public int getId() {
         return this.id;
     }
 
@@ -45,7 +45,7 @@ public class Product {
      *  The getName method returns the product's name
      *  @return The value in the name field.
      */
-    String getName() {
+    public String getName() {
         return this.name;
     }
 
@@ -53,7 +53,7 @@ public class Product {
      *  The getPrice method returns the product's price
      *  @return The value in the price field.
      */
-    double getPrice() {
+    public double getPrice() {
         return this.price;
     }
 
@@ -61,7 +61,7 @@ public class Product {
      *  The getStock method returns the quantity in stock
      *  @return The value in the stock field.
      */
-    int getStock() {
+    public int getStock() {
         return this.stock;
     }
 
@@ -69,7 +69,7 @@ public class Product {
      *  The getMin method returns the product's min value
      *  @return The value in the min field.
      */
-    int getMin() {
+    public int getMin() {
         return this.min;
     }
 
@@ -77,7 +77,7 @@ public class Product {
      *  The getMax method returns the product's max value
      *  @return The value in the max field.
      */
-    int getMax() {
+    public int getMax() {
         return this.max;
     }
 
@@ -85,7 +85,7 @@ public class Product {
      *  The setId method sets the value of the id field.
      *  @param id Specifies the product's id.
      */
-    void setId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -93,7 +93,7 @@ public class Product {
      *  The setName method sets the value of the name field.
      *  @param name Specifies the product's name.
      */
-    void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -101,7 +101,7 @@ public class Product {
      *  The setPrice method sets the value of the price field.
      *  @param price Specifies the product's price.
      */
-    void setPrice(double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -109,7 +109,7 @@ public class Product {
      *  The setStock method sets the value of the stock field.
      *  @param stock Specifies the product's quantity available.
      */
-    void setStock(int stock) {
+    public void setStock(int stock) {
         this.stock = stock;
     }
 
@@ -117,7 +117,7 @@ public class Product {
      *  The setMin method sets the value of the min field.
      *  @param min Specifies the product's min value.
      */
-    void setMin(int min) {
+    public void setMin(int min) {
         this.min = min;
     }
 
@@ -125,7 +125,7 @@ public class Product {
      *  The setMax method sets the value of the max field.
      *  @param max Specifies the product's max value.
      */
-    void setMax(int max) {
+    public void setMax(int max) {
         this.max = max;
     }
 
@@ -133,7 +133,7 @@ public class Product {
      *  The addAssociatedPart method adds a part to the associatedPart list.
      *  @param part Specifies the part to be associated with the current product.
      */
-    void addAssociatedPart(Part part) {
+    public void addAssociatedPart(Part part) {
         associatedParts.add(part);
     }
 
@@ -142,7 +142,7 @@ public class Product {
      *  @param part Specifies the part to be deleted from the current product's
      *              associatedPart list.
      */
-    void deleteAssociatedPart(Part part) {
+    public void deleteAssociatedPart(Part part) {
         associatedParts.remove(part);
     }
 
@@ -150,7 +150,7 @@ public class Product {
      *  The getAllAssociatedParts method returns the list of associated parts
      *  @return The associatedParts list.
      */
-    ObservableList<Part> getAllAssociatedParts() {
+    public ObservableList<Part> getAllAssociatedParts() {
         return this.associatedParts;
     }
 }

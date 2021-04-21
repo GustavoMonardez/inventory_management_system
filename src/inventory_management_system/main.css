@@ -30,7 +30,16 @@
     -fx-padding: 0 0 3 0;
 }
 
+#products-label-and-search-box {
+    -fx-spacing: 175;
+    -fx-padding: 0 0 3 0;
+}
+
 #parts-pane-title {
+    -fx-font-weight: bold;
+}
+
+#products-pane-title {
     -fx-font-weight: bold;
 }
 

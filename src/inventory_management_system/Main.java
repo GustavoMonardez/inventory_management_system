@@ -32,11 +32,18 @@ public class Main extends Application {
     // Use to assign part id to newly created parts
     private int partsCount = 0;
 
+    // Use to assign product id to newly created products
+    private int productsCount = 0;
+
     // Table that will display all parts available
     private TableView<Part> partsTable = new TableView();
 
+    // Table that will display all parts available
+    private TableView<Product> productsTable = new TableView();
+
     // Column that data will be sorted on
     private TableColumn partIDHeader;
+    private TableColumn productIDHeader;
 
     // Main inventory object
     private Inventory inventory = new Inventory();
@@ -83,7 +90,12 @@ public class Main extends Application {
         inventory.addPart(new Outsourced(partsCount,"Bumper", 35.20, 1, 1, 12,
                 "Super Bikes"));
         ++partsCount;
-        /******************* End of dummy data creation *******************/
+
+        /******************* Create dummy product data to display *******************/
+        inventory.addProduct(new Product(productsCount,"Giant Bike", 299.99, 3, 1, 12));
+        ++productsCount;
+        inventory.addProduct(new Product(productsCount,"Tricycle", 99.99, 5, 1, 12));
+        ++productsCount;
 
         // Initialize Add/Modify form
         initializeAddPartForm();
@@ -144,7 +156,7 @@ public class Main extends Application {
         partsPane.getChildren().addAll(partsLabelAndSearchBox, partsTable, crudButtonsPane);
 
         // Parts pane top elements
-        FilteredList<Part>filteredPartsList = new FilteredList<>(inventory.getAllParts(), p -> true);
+        //FilteredList<Part>filteredPartsList = new FilteredList<>(inventory.getAllParts(), p -> true);
         Label partsPaneTitle = new Label("Parts");
         partsPaneTitle.setId("parts-pane-title");
         TextField partsSearchBox = new TextField();
@@ -318,6 +330,80 @@ public class Main extends Application {
 
         // Add all buttons to the wrapper container
         crudButtonsPane.getChildren().addAll(addPartButton, modifyPartButton, deletePartButton);
+
+        /******************* Products pane layout *******************/
+        // Parts pane label and search box container
+        HBox productsLabelAndSearchBox = new HBox();        // top
+        // table view middle
+        HBox crudButtonsPane2 = new HBox();              // bottom
+        productsPane.getChildren().addAll(productsLabelAndSearchBox, productsTable, crudButtonsPane2);
+
+        // Products pane top elements
+        Label productsPaneTitle = new Label("Products");
+        productsPaneTitle.setId("products-pane-title");
+        TextField productsSearchBox = new TextField();
+        productsSearchBox.setPromptText("Search by product ID or Name");
+        productsSearchBox.setFocusTraversable(false);
+
+        // Auto-complete search event handler
+        productsSearchBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    String searchInput = productsSearchBox.getText().toLowerCase();
+                    if (searchInput.length() == 0) {
+                        productsTable.setItems(inventory.getAllProducts());
+                    } else if (searchInput.matches("^[0-9].*$")) {
+                        for (int i = 0; i < productsTable.getItems().size(); i++) {
+                            if (productsTable.getItems().get(i).getId() == Integer.parseInt(searchInput)) {
+                                productsTable.requestFocus();
+                                productsTable.getSelectionModel().select(i);
+                                productsTable.getFocusModel().focus(0);
+                            }
+                        }
+                    } else {
+                        System.out.println("starts wit letters");
+                        productsTable.setItems(inventory.lookupProduct(searchInput));
+                    }
+
+                }
+            }
+        });
+
+        // Assign id for css styling
+        productsLabelAndSearchBox.setId("products-label-and-search-box");
+
+        // Add title and search box panes to parent container
+        productsLabelAndSearchBox.getChildren().addAll(productsPaneTitle, productsSearchBox);
+
+        // Products pane middle elements
+        productIDHeader = new TableColumn("Product ID");
+        productIDHeader.setCellValueFactory(new PropertyValueFactory<Product, Integer>("id"));
+
+        TableColumn productNameHeader = new TableColumn("Product Name");
+        productNameHeader.setCellValueFactory(new PropertyValueFactory<Product, String>("name"));
+
+        TableColumn inventoryProdHeader = new TableColumn("Inventory Level");
+        inventoryProdHeader.setCellValueFactory(new PropertyValueFactory<Product, Integer>("stock"));
+
+        TableColumn priceProdHeader = new TableColumn("Price/Cost per Unit");
+        priceProdHeader.setCellValueFactory(new PropertyValueFactory<Product, Double>("price"));
+
+
+        productsTable.setItems(inventory.getAllProducts());
+        System.out.println("Printing prods");
+        for (Product p : inventory.getAllProducts()) {
+            System.out.println(p.getId());
+        }
+        // Assign css class for styling
+        productsTable.getStyleClass().add("parts-and-products-table");
+
+        // Add columns to the parts table
+        productsTable.getColumns().addAll(productIDHeader, productNameHeader, inventoryProdHeader, priceProdHeader);
+
+
+
+
 
         // Main pane config
         VBox mainPane = new VBox();
