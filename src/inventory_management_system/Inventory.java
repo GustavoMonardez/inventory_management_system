@@ -137,7 +137,11 @@ public class Inventory {
      * @return true if the product is deleted successfully, false otherwise
      */
     boolean deleteProduct(Product selectedProduct) {
-        return true;
+        if (this.allProducts.remove(selectedProduct)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

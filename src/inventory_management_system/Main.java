@@ -450,9 +450,84 @@ public class Main extends Application {
             }
         });
 
+
+        // Modify product button and event handler
+        Button modifyProductButton = new Button("Modify");
+        modifyProductButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                int index = productsTable.getSelectionModel().getSelectedIndex();
+                // If no product has been selected, display an error message letting the
+                // user know that a part needs to be selected
+                if (index == -1) {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setHeaderText("Input not valid");
+                    errorAlert.setContentText("You must select a product to modify");
+                    errorAlert.showAndWait();
+                } else {
+                    // Get the current product selected and prefill the "modify part" fields
+                    // with the corresponding data
+                    Product selectedProduct = (Product) productsTable.getSelectionModel().getSelectedItem();
+                    int selectedIndex = productsTable.getSelectionModel().getSelectedIndex();
+                    //updateAddModifyPartForm(selectedProduct.getId());
+
+                    // Save changes event handler
+//                    saveAddPart.setOnAction(new EventHandler<ActionEvent>() {
+//                        @Override public void handle(ActionEvent e) {
+//                            // Update changes made
+//                            Part modifiedPart = createNewPart();
+//
+//                            if (modifiedPart != null) {
+//                                inventory.updatePart(selectedIndex, modifiedPart);
+//                                partsTable.getSortOrder().addAll(partIDHeader);
+//                                // Redirect back to the main form
+//                                primaryStage.setScene(mainFormScene);
+//                            }
+//                        }
+//                    });
+                    // Redirect to the modify part form
+                    primaryStage.setScene(addProductFormScene);
+                }
+            }
+        });
+
+        // Delete product button and event handler
+        Button deleteProductButton = new Button("Delete");
+
+        deleteProductButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                int index = productsTable.getSelectionModel().getSelectedIndex();
+
+                // If no product has been selected, display an error message letting the
+                // user know that a part needs to be selected
+                if (index == -1) {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setHeaderText("Input not valid");
+                    errorAlert.setContentText("You must select a product to delete");
+                    errorAlert.showAndWait();
+                } else {
+                    // Get the product selected to be deleted
+                    Product selected = (Product) productsTable.getSelectionModel().getSelectedItem();
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirm product deletion");
+                    String deleteMsg = "You are about to delete the '" + selected.getName() + "' product";
+                    alert.setHeaderText(deleteMsg);
+                    alert.setContentText("Are you sure you want to delete the selected product?");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        // Delete selected product from main inventory
+                        inventory.deleteProduct(selected);
+                    } else {
+                        // ... user chose CANCEL or closed the dialog
+                    }
+
+                }
+            }
+        });
+
         // Add all buttons to the wrapper container
-        crudButtonsPane2.getChildren().addAll(addProductButton);
-//        crudButtonsPane2.getChildren().addAll(addProductButton, modifyProductButton, deleteProductButton);
+        crudButtonsPane2.getChildren().addAll(addProductButton, modifyProductButton, deleteProductButton);
 
 
 
