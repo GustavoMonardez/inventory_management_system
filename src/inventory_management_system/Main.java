@@ -51,6 +51,7 @@ public class Main extends Application {
 
     /******************* Add Part Form *******************/
     private Label addPartLabel = new Label("Add Part");
+    private TextField partsSearchBox = new TextField();
     private RadioButton inHouse = new RadioButton("In-House");
     private RadioButton outsourced = new RadioButton("Outsourced");
     private TextField partIdTextField = new TextField();
@@ -73,7 +74,7 @@ public class Main extends Application {
     private TextField productPriceTextField = new TextField();
     private TextField productMaxTextField = new TextField();
     private TextField productMinTextField = new TextField();
-    private VBox addProductFormLayout = new VBox();
+    private HBox addProductFormLayout = new HBox();
     private Button cancelAddProduct = new Button("Cancel");
     private Scene addProductFormScene = new Scene(addProductFormLayout);
 
@@ -173,7 +174,7 @@ public class Main extends Application {
         //FilteredList<Part>filteredPartsList = new FilteredList<>(inventory.getAllParts(), p -> true);
         Label partsPaneTitle = new Label("Parts");
         partsPaneTitle.setId("parts-pane-title");
-        TextField partsSearchBox = new TextField();
+
         partsSearchBox.setPromptText("Search by part ID or Name");
         partsSearchBox.setFocusTraversable(false);
 
@@ -709,13 +710,75 @@ public class Main extends Application {
         addProductFieldsPane.getChildren().addAll(productIdPane,productNamePane, productInventoryPane, productPricePane,
                 productMaxAndMinPane);
 
+        /*** tables on the right ***/
+        VBox productsPartsPane = new VBox();
+        TableView partsTable = new TableView<Part>();
+
+        // Parts pane middle elements
+        partIDHeader = new TableColumn("Part ID");
+        partIDHeader.setCellValueFactory(new PropertyValueFactory<Part, Integer>("id"));
+
+        TableColumn partNameHeader = new TableColumn("Part Name");
+        partNameHeader.setCellValueFactory(new PropertyValueFactory<Part, String>("name"));
+
+        TableColumn inventoryHeader = new TableColumn("Inventory Level");
+        inventoryHeader.setCellValueFactory(new PropertyValueFactory<Part, String>("stock"));
+
+        TableColumn priceHeader = new TableColumn("Price/Cost per Unit");
+        priceHeader.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
+
+        partsTable.setItems(inventory.getAllParts());
+
+        // Assign css class for styling
+        partsTable.getStyleClass().add("parts-and-products-table");
+
+        // Add columns to the parts table
+        partsTable.getColumns().addAll(partIDHeader, partNameHeader, inventoryHeader, priceHeader);
+
+        // Associated parts
+        TableView assocPartsTable = new TableView<Part>();
+
+        // Parts pane middle elements
+        TableColumn assocPartIDHeader = new TableColumn("Part ID");
+        assocPartIDHeader.setCellValueFactory(new PropertyValueFactory<Part, Integer>("id"));
+
+        TableColumn assocPartNameHeader = new TableColumn("Part Name");
+        assocPartNameHeader.setCellValueFactory(new PropertyValueFactory<Part, String>("name"));
+
+        TableColumn assocInventoryHeader = new TableColumn("Inventory Level");
+        assocInventoryHeader.setCellValueFactory(new PropertyValueFactory<Part, String>("stock"));
+
+        TableColumn assocPriceHeader = new TableColumn("Price/Cost per Unit");
+        assocPriceHeader.setCellValueFactory(new PropertyValueFactory<Part, Double>("price"));
+
+        // Assign css class for styling
+        assocPartsTable.getStyleClass().add("parts-and-products-table");
+
+        assocPartsTable.getColumns().addAll(assocPartIDHeader, assocPartNameHeader, assocInventoryHeader,
+                assocPriceHeader);
+
         /******************* addProductFormLayout - bottom *******************/
+        Button addPartButton = new Button("Add");
+        HBox addAssocPartButtonPane = new HBox();
+        addAssocPartButtonPane.getStyleClass().add("assoc-part-button-pane");
+        addAssocPartButtonPane.getChildren().addAll(addPartButton);
+
+        HBox removeAssocPartButtonsPane = new HBox();
+        Button removeAssocPartButton = new Button("Remove Associated Part");
+        removeAssocPartButtonsPane.getStyleClass().add("remove-assoc-part-button-pane");
+        removeAssocPartButtonsPane.getChildren().addAll(removeAssocPartButton);
+
         HBox saveAndCancelProdButtonsPane = new HBox();
+        Button saveAssocPartButton = new Button("Save");
         saveAndCancelProdButtonsPane.setId("add-product-save-cancel-buttons-pane");
-        saveAndCancelProdButtonsPane.getChildren().addAll(cancelAddProduct);
+        saveAndCancelProdButtonsPane.getChildren().addAll(saveAssocPartButton, cancelAddProduct);
+
+        productsPartsPane.getStyleClass().add("products-parts-pane");
+        productsPartsPane.getChildren().addAll(partsTable, addAssocPartButtonPane, assocPartsTable,
+                removeAssocPartButtonsPane, saveAndCancelProdButtonsPane);
 
         addProductFormLayout.getStyleClass().add("add-form-main-pane");
-        addProductFormLayout.getChildren().addAll(addProductFieldsPane, saveAndCancelProdButtonsPane);
+        addProductFormLayout.getChildren().addAll(addProductFieldsPane, productsPartsPane);
     }
 
     private void initializeAddPartFormTextFieldsValidation() {
