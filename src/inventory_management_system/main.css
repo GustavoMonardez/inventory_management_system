@@ -95,3 +95,9 @@
     -fx-padding: 10 0 0 0;
     -fx-spacing: 10;
 }
+
+#add-product-save-cancel-buttons-pane {
+    -fx-alignment: baseline-right;
+    -fx-padding: 10 0 0 0;
+    -fx-spacing: 10;
+}

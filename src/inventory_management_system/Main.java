@@ -66,6 +66,17 @@ public class Main extends Application {
     private Button saveAddPart = new Button("Save");
     private Scene addPartFormScene = new Scene(addPartFormLayout);
 
+    /******************* Add Product Form *******************/
+    private TextField productIdTextField = new TextField();
+    private TextField productNameTextField = new TextField();
+    private TextField productInventoryTextField = new TextField();
+    private TextField productPriceTextField = new TextField();
+    private TextField productMaxTextField = new TextField();
+    private TextField productMinTextField = new TextField();
+    private VBox addProductFormLayout = new VBox();
+    private Button cancelAddProduct = new Button("Cancel");
+    private Scene addProductFormScene = new Scene(addProductFormLayout);
+
 
     /**
      *  The  start  method begins the execution of the thread
@@ -99,11 +110,14 @@ public class Main extends Application {
 
         // Initialize Add/Modify form
         initializeAddPartForm();
+        initializeAddProductForm();
         cancelAddPart.setOnAction(e -> primaryStage.setScene(mainFormScene));
+        cancelAddProduct.setOnAction(e -> primaryStage.setScene(mainFormScene));
 
         // Apply external css styling to forms and its elements
         mainFormScene.getStylesheets().add(Main.class.getResource("Main.css").toExternalForm());
         addPartFormScene.getStylesheets().add(Main.class.getResource("Main.css").toExternalForm());
+        addProductFormScene.getStylesheets().add(Main.class.getResource("Main.css").toExternalForm());
 
         /******************* Main Pane/Form top *******************/
         Label mainFormTitle = new Label("Inventory Management System");
@@ -402,6 +416,53 @@ public class Main extends Application {
         productsTable.getColumns().addAll(productIDHeader, productNameHeader, inventoryProdHeader, priceProdHeader);
 
 
+        // Products pane bottom elements
+
+        // Assign css class for styling
+        crudButtonsPane2.getStyleClass().add("crud-buttons-pane");
+
+        // Add part button and event handler
+        Button addProductButton = new Button("Add");
+        addProductButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                // Make sure the add part form is clear and does not hold
+                // values from previous states
+                //resetAddModifyPartForm();
+                // Add new part event handler
+//                saveAddProduct.setOnAction(new EventHandler<ActionEvent>() {
+//                    @Override public void handle(ActionEvent e) {
+//                        Product newProduct = createNewPart();
+//
+//                        if (newPart != null) {
+//                            // Add new part to our main inventory object
+//                            inventory.addPart(newPart);
+//
+//                            // Increase part id
+//                            ++partsCount;
+//
+//                            // Redirect to main screen
+//                            primaryStage.setScene(mainFormScene);
+//                        }
+//                    }
+//                });
+                // Redirect to the add part form
+                primaryStage.setScene(addProductFormScene);
+            }
+        });
+
+        // Add all buttons to the wrapper container
+        crudButtonsPane2.getChildren().addAll(addProductButton);
+//        crudButtonsPane2.getChildren().addAll(addProductButton, modifyProductButton, deleteProductButton);
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -525,6 +586,61 @@ public class Main extends Application {
 
         addPartFormLayout.getStyleClass().add("add-form-main-pane");
         addPartFormLayout.getChildren().addAll(addPartTypePane, addPartFieldsPane, saveAndCancelButtonsPane);
+    }
+
+    private void initializeAddProductForm() {
+        // id
+        Label productIdLabel = new Label("ID");
+        productIdLabel.getStyleClass().add("add-part-field-labels");
+        productIdTextField.setPromptText("Auto Gen - Disabled");
+        productIdTextField.setDisable(true);
+        HBox productIdPane = new HBox();
+        productIdPane.getStyleClass().add("add-part-field-panes");
+        productIdPane.getChildren().addAll(productIdLabel, productIdTextField);
+
+        // Name
+        Label productNameLabel = new Label("Name");
+        productNameLabel.getStyleClass().add("add-part-field-labels");
+        HBox productNamePane = new HBox();
+        productNamePane.getStyleClass().add("add-part-field-panes");
+        productNamePane.getChildren().addAll(productNameLabel, productNameTextField);
+
+        // Inventory
+        Label productInventoryLabel = new Label("Inv");
+        productInventoryLabel.getStyleClass().add("add-part-field-labels");
+        HBox productInventoryPane = new HBox();
+        productInventoryPane.getStyleClass().add("add-part-field-panes");
+        productInventoryPane.getChildren().addAll(productInventoryLabel, productInventoryTextField);
+
+        // Price/Cost
+        Label productPriceLabel = new Label("Price/Cost");
+        productPriceLabel.getStyleClass().add("add-part-field-labels");
+        HBox productPricePane = new HBox();
+        productPricePane.getStyleClass().add("add-part-field-panes");
+        productPricePane.getChildren().addAll(productPriceLabel, productPriceTextField);
+
+        // Max and Min
+        Label productMaxLabel = new Label("Max");
+        productMaxLabel.getStyleClass().add("add-part-field-labels");
+        Label productMinLabel = new Label("Min");
+        productMinLabel.setId("add-part-min-label");
+        HBox productMaxAndMinPane = new HBox();
+        productMaxAndMinPane.getStyleClass().add("add-part-field-panes");
+        productMaxAndMinPane.getChildren().addAll(productMaxLabel, productMaxTextField, productMinLabel,
+                productMinTextField);
+
+        VBox addProductFieldsPane = new VBox();
+
+        addProductFieldsPane.getChildren().addAll(productIdPane,productNamePane, productInventoryPane, productPricePane,
+                productMaxAndMinPane);
+
+        /******************* addProductFormLayout - bottom *******************/
+        HBox saveAndCancelProdButtonsPane = new HBox();
+        saveAndCancelProdButtonsPane.setId("add-product-save-cancel-buttons-pane");
+        saveAndCancelProdButtonsPane.getChildren().addAll(cancelAddProduct);
+
+        addProductFormLayout.getStyleClass().add("add-form-main-pane");
+        addProductFormLayout.getChildren().addAll(addProductFieldsPane, saveAndCancelProdButtonsPane);
     }
 
     private void initializeAddPartFormTextFieldsValidation() {
