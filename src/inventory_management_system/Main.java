@@ -3,6 +3,8 @@ package inventory_management_system;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -758,13 +760,74 @@ public class Main extends Application {
                 assocPriceHeader);
 
         /******************* addProductFormLayout - bottom *******************/
+        ObservableList<Part> associatedPartsList = FXCollections.observableArrayList();
+        assocPartsTable.setItems(associatedPartsList);
+
         Button addPartButton = new Button("Add");
+        addPartButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                int index = partsTable.getSelectionModel().getSelectedIndex();
+                // If no part has been selected, display an error message letting the
+                // user know that a part needs to be selected
+                if (index == -1) {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setHeaderText("Input not valid");
+                    errorAlert.setContentText("You must select a part to add");
+                    errorAlert.showAndWait();
+                } else {
+                    // Get the current part selected and prefill the "modify part" fields
+                    // with the corresponding data
+                    Part selectedPart = (Part) partsTable.getSelectionModel().getSelectedItem();
+                    int selectedIndex = partsTable.getSelectionModel().getSelectedIndex();
+                    //updateAddModifyPartForm(selectedPart.getId());
+                    associatedPartsList.add(selectedPart);
+                }
+            }
+        });
+
+
         HBox addAssocPartButtonPane = new HBox();
         addAssocPartButtonPane.getStyleClass().add("assoc-part-button-pane");
         addAssocPartButtonPane.getChildren().addAll(addPartButton);
 
+
+
         HBox removeAssocPartButtonsPane = new HBox();
         Button removeAssocPartButton = new Button("Remove Associated Part");
+        removeAssocPartButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                int index = assocPartsTable.getSelectionModel().getSelectedIndex();
+
+                // If no part has been selected, display an error message letting the
+                // user know that a part needs to be selected
+                if (index == -1) {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setHeaderText("Input not valid");
+                    errorAlert.setContentText("You must select a part to delete");
+                    errorAlert.showAndWait();
+                } else {
+                    // Get the part selected to be deleted
+                    Part selected = (Part) assocPartsTable.getSelectionModel().getSelectedItem();
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirm part deletion");
+                    String deleteMsg = "You are about to delete the '" + selected.getName() + "' part";
+                    alert.setHeaderText(deleteMsg);
+                    alert.setContentText("Are you sure you want to delete the selected part?");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == ButtonType.OK){
+                        // Delete selected part from main inventory
+                        associatedPartsList.remove(selected);
+                    } else {
+                        // ... user chose CANCEL or closed the dialog
+                    }
+
+                }
+            }
+        });
+
+
         removeAssocPartButtonsPane.getStyleClass().add("remove-assoc-part-button-pane");
         removeAssocPartButtonsPane.getChildren().addAll(removeAssocPartButton);
 
