@@ -115,7 +115,12 @@ public class Inventory {
      * @param selectedProduct The updated information about the product
      */
     void updateProduct(int index, Product selectedProduct) {
+        // preserve the product id
+        Product oldProduct = this.allProducts.get(index);
+        selectedProduct.setId(oldProduct.getId());
 
+        // update all other fields
+        this.allProducts.set(index, selectedProduct);
     }
 
     /**

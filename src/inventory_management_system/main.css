@@ -115,3 +115,9 @@
     -fx-alignment: center-right;
     -fx-padding: 15 0 15 0;
 }
+
+#add-product-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+    -fx-padding: 0 0 50 0;
+}

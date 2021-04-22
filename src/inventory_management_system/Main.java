@@ -70,6 +70,7 @@ public class Main extends Application {
     private Scene addPartFormScene = new Scene(addPartFormLayout);
 
     /******************* Add Product Form *******************/
+    private Label addProductLabel = new Label("Add Product");
     private TextField productIdTextField = new TextField();
     private TextField productNameTextField = new TextField();
     private TextField productInventoryTextField = new TextField();
@@ -78,7 +79,10 @@ public class Main extends Application {
     private TextField productMinTextField = new TextField();
     private HBox addProductFormLayout = new HBox();
     private Button cancelAddProduct = new Button("Cancel");
+    private Button saveAssocPartButton = new Button("Save");
     private Scene addProductFormScene = new Scene(addProductFormLayout);
+    private ObservableList<Part> associatedPartsList = FXCollections.observableArrayList();
+    private TableView assocPartsTable = new TableView<Part>();
 
 
     /**
@@ -430,24 +434,24 @@ public class Main extends Application {
             @Override public void handle(ActionEvent e) {
                 // Make sure the add part form is clear and does not hold
                 // values from previous states
-                //resetAddModifyPartForm();
+                resetAddModifyProductForm();
                 // Add new part event handler
-//                saveAddProduct.setOnAction(new EventHandler<ActionEvent>() {
-//                    @Override public void handle(ActionEvent e) {
-//                        Product newProduct = createNewPart();
-//
-//                        if (newPart != null) {
-//                            // Add new part to our main inventory object
-//                            inventory.addPart(newPart);
-//
-//                            // Increase part id
-//                            ++partsCount;
-//
-//                            // Redirect to main screen
-//                            primaryStage.setScene(mainFormScene);
-//                        }
-//                    }
-//                });
+                saveAssocPartButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override public void handle(ActionEvent e) {
+                        Product newProduct = createNewProduct();
+
+                        if (newProduct != null) {
+                            // Add new part to our main inventory object
+                            inventory.addProduct(newProduct);
+
+                            // Increase part id
+                            ++productsCount;
+
+                            // Redirect to main screen
+                            primaryStage.setScene(mainFormScene);
+                        }
+                    }
+                });
                 // Redirect to the add part form
                 primaryStage.setScene(addProductFormScene);
             }
@@ -471,22 +475,22 @@ public class Main extends Application {
                     // with the corresponding data
                     Product selectedProduct = (Product) productsTable.getSelectionModel().getSelectedItem();
                     int selectedIndex = productsTable.getSelectionModel().getSelectedIndex();
-                    //updateAddModifyPartForm(selectedProduct.getId());
+                    updateAddModifyProductForm(selectedProduct.getId());
 
                     // Save changes event handler
-//                    saveAddPart.setOnAction(new EventHandler<ActionEvent>() {
-//                        @Override public void handle(ActionEvent e) {
-//                            // Update changes made
-//                            Part modifiedPart = createNewPart();
-//
-//                            if (modifiedPart != null) {
-//                                inventory.updatePart(selectedIndex, modifiedPart);
-//                                partsTable.getSortOrder().addAll(partIDHeader);
-//                                // Redirect back to the main form
-//                                primaryStage.setScene(mainFormScene);
-//                            }
-//                        }
-//                    });
+                    saveAssocPartButton.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override public void handle(ActionEvent e) {
+                            // Update changes made
+                            Product modifiedProduct = createNewProduct();
+
+                            if (modifiedProduct != null) {
+                                inventory.updateProduct(selectedIndex, modifiedProduct);
+                                productsTable.getSortOrder().addAll(productIDHeader);
+                                // Redirect back to the main form
+                                primaryStage.setScene(mainFormScene);
+                            }
+                        }
+                    });
                     // Redirect to the modify part form
                     primaryStage.setScene(addProductFormScene);
                 }
@@ -520,7 +524,15 @@ public class Main extends Application {
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.get() == ButtonType.OK){
                         // Delete selected product from main inventory
-                        inventory.deleteProduct(selected);
+                        if (selected.getAllAssociatedParts().size() > 0) {
+                            alert.setTitle("Error deleting product");
+                            deleteMsg = "The '" + selected.getName() + "' product could not be deleted";
+                            alert.setHeaderText(deleteMsg);
+                            alert.setContentText("Delete any associated parts with the product and try again");
+                            alert.showAndWait();
+                        } else {
+                            inventory.deleteProduct(selected);
+                        }
                     } else {
                         // ... user chose CANCEL or closed the dialog
                     }
@@ -579,8 +591,10 @@ public class Main extends Application {
                     String selection = rb.getText();
                     // Update add/modify part label based on selection
                     if (selection == "In-House") {
+                        partIdOrNameTextField.setPromptText("Please enter a number");
                         partIdOrNameLabel.setText("Machine ID");
                     } else {
+                        partIdOrNameTextField.setPromptText("Please enter a company name");
                         partIdOrNameLabel.setText("Company Name");
                     }
 
@@ -667,6 +681,7 @@ public class Main extends Application {
     }
 
     private void initializeAddProductForm() {
+        addProductLabel.setId("add-product-label");
         // id
         Label productIdLabel = new Label("ID");
         productIdLabel.getStyleClass().add("add-part-field-labels");
@@ -737,8 +752,7 @@ public class Main extends Application {
         // Add columns to the parts table
         partsTable.getColumns().addAll(partIDHeader, partNameHeader, inventoryHeader, priceHeader);
 
-        // Associated parts
-        TableView assocPartsTable = new TableView<Part>();
+
 
         // Parts pane middle elements
         TableColumn assocPartIDHeader = new TableColumn("Part ID");
@@ -760,7 +774,7 @@ public class Main extends Application {
                 assocPriceHeader);
 
         /******************* addProductFormLayout - bottom *******************/
-        ObservableList<Part> associatedPartsList = FXCollections.observableArrayList();
+
         assocPartsTable.setItems(associatedPartsList);
 
         Button addPartButton = new Button("Add");
@@ -832,7 +846,7 @@ public class Main extends Application {
         removeAssocPartButtonsPane.getChildren().addAll(removeAssocPartButton);
 
         HBox saveAndCancelProdButtonsPane = new HBox();
-        Button saveAssocPartButton = new Button("Save");
+
         saveAndCancelProdButtonsPane.setId("add-product-save-cancel-buttons-pane");
         saveAndCancelProdButtonsPane.getChildren().addAll(saveAssocPartButton, cancelAddProduct);
 
@@ -840,11 +854,15 @@ public class Main extends Application {
         productsPartsPane.getChildren().addAll(partsTable, addAssocPartButtonPane, assocPartsTable,
                 removeAssocPartButtonsPane, saveAndCancelProdButtonsPane);
 
+        VBox productTitleAndFieldsPane = new VBox();
+        productTitleAndFieldsPane.getChildren().addAll(addProductLabel, addProductFieldsPane);
         addProductFormLayout.getStyleClass().add("add-form-main-pane");
-        addProductFormLayout.getChildren().addAll(addProductFieldsPane, productsPartsPane);
+        addProductFormLayout.getChildren().addAll(productTitleAndFieldsPane, productsPartsPane);
     }
 
     private void initializeAddPartFormTextFieldsValidation() {
+        partNameTextField.setText("");
+        partNameTextField.setPromptText("Please enter a part name");
         partInventoryTextField.setText("");
         partInventoryTextField.setPromptText("Please enter a number");
         partInventoryTextField.textProperty().addListener(new ChangeListener<String>() {
@@ -893,6 +911,8 @@ public class Main extends Application {
             }
         });
 
+        partIdOrNameTextField.setText("");
+        partIdOrNameTextField.setPromptText("Please enter a number");
     }
 
     /**
@@ -1081,6 +1101,140 @@ public class Main extends Application {
         partsTable.getSortOrder().addAll(partIDHeader);
     }
 
+    /**
+     *  The createNewProduct function creates a new product from the
+     *  data entered into the add product form
+     *  @return The newly created product
+     */
+    private Product createNewProduct() {
+        boolean allFieldsValid = true;
+        boolean numeric = true;
+        boolean numericInv = true;
+        boolean numericMax = true;
+        boolean numericMin = true;
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error Dialog");
+        alert.setHeaderText("Invalid data");
+
+        Product newProduct;
+        String productName = productNameTextField.getText();
+        Double productPrice = -1.0;
+        int productInventory = -1;
+        int productMax = -1;
+        int productMin = -1;
+
+        // part name
+        if (productName.length() == 0) {
+            alert.setContentText("You must enter a product name");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+
+        // inventory
+        numericInv = productInventoryTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        if(numericInv) productInventory = Integer.parseInt(productInventoryTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for product inventory");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+
+        // price
+        numeric = productPriceTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        System.out.println("price: " + numeric);
+        if(numeric) productPrice = Double.parseDouble(productPriceTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for product price/cost");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+
+        // max
+        numericMax = productMaxTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        if(numericMax) productMax = Integer.parseInt(productMaxTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for product max");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+
+        // min
+        numericMin = productMinTextField.getText().matches("-?\\d+(\\.\\d+)?");
+        if(numericMin) productMin = Integer.parseInt(productMinTextField.getText());
+        else {
+            alert.setContentText("You must enter a number for product min");
+            alert.showAndWait();
+            allFieldsValid = false;
+        }
+        // if all values are numbers, check to see if they're in the correct
+        // range of values
+        if (numericInv && numericMax && numericMin) {
+            if (productMin > productMax) {
+                alert.setContentText("The min value must be lesser or equal to the max value");
+                alert.showAndWait();
+                allFieldsValid = false;
+            }
+            // Inventory must be within min and max
+            else if (productInventory < productMin || productInventory > productMax) {
+                alert.setContentText("The inventory value must be greater or equal to the min value" +
+                        " and lesser or equal to the max value");
+                alert.showAndWait();
+                allFieldsValid = false;
+            }
+        }
+        // missing tableview data
+        if (allFieldsValid) {
+            newProduct = new Product(productsCount,productName,productPrice,productInventory,productMin,productMax);
+            for (Part p : associatedPartsList) {
+                newProduct.addAssociatedPart(p);
+            }
+            return newProduct;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     *  The updateAddModifyProductForm function loads the selected
+     *  product's data into the modify product form
+     *  @param productId Specifies the id of the selected product.
+     */
+    private void updateAddModifyProductForm(int productId) {
+        addProductLabel.setText("Modify Product");
+        Product selectedProduct = inventory.lookupProduct(productId);
+        productIdTextField.setText(String.valueOf(selectedProduct.getId()));
+        productNameTextField.setText(selectedProduct.getName());
+        productInventoryTextField.setText(String.valueOf(selectedProduct.getStock()));
+        productPriceTextField.setText(String.valueOf(selectedProduct.getPrice()));
+        productMaxTextField.setText(String.valueOf(selectedProduct.getMax()));
+        productMinTextField.setText(String.valueOf(selectedProduct.getMin()));
+        associatedPartsList.clear();
+        associatedPartsList.addAll(selectedProduct.getAllAssociatedParts());
+        //associatedPartsList = selectedProduct.getAllAssociatedParts();
+    }
+
+    /**
+     *  The resetAddModifyProductForm function resets all the
+     *  values from the add/modify product form
+     */
+    private void resetAddModifyProductForm() {
+        addProductLabel.setText("Add Product");
+        productIdTextField.setText("");
+        productIdTextField.setPromptText("Auto Gen - Disabled");
+        productNameTextField.setText("");
+        productInventoryTextField.setText("");
+        productPriceTextField.setText("");
+        productMaxTextField.setText("");
+        productMinTextField.setText("");
+        associatedPartsList.clear();
+    }
+
+
+    /**
+     * The Javadoc
+     *
+     * */
     public static void main(String[] args) {
         launch(args);
     }

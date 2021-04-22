@@ -1,5 +1,6 @@
 package inventory_management_system;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 /**
@@ -31,6 +32,7 @@ public class Product {
         this.stock = stock;
         this.min = min;
         this.max = max;
+        this.associatedParts = FXCollections.observableArrayList();
     }
 
     /**
