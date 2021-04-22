@@ -1232,8 +1232,8 @@ public class Main extends Application {
 
 
     /**
-     * The Javadoc
-     *
+     * The Javadoc files can be found in:
+     * src\inventory_management_system\docs
      * */
     public static void main(String[] args) {
         launch(args);
